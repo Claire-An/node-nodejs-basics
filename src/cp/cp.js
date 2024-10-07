@@ -1,6 +1,21 @@
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { fork } from 'node:child_process';
+
+const folderName = 'files';
+const fileName = 'script.js';
+
 const spawnChildProcess = async (args) => {
-    // Write your code here
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const folderPath = join(__dirname, folderName, fileName);
+    const child = fork(folderPath, args);
+    child.on('message', (data) => {
+        process.stdout.write(data);
+    });
+    child.on('error', () => {
+        throw new Error('FS operation failed');
+    });
 };
 
-// Put your arguments in function call to test this functionality
-spawnChildProcess( /* [someArgument1, someArgument2, ...] */);
+spawnChildProcess(process.argv.slice(2));
